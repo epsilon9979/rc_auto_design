@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最佳化自動配筋系統</title>
+    <style>
+        :root {
+            --bg: #f3f7f8;
+            --card: #ffffff;
+            --primary: #2579b8;
+            --primary-dark: #1f6599;
+            --accent: #e8f5fb;
+            --border: #e4edf2;
+            --text: #213547;
+            --muted: #64748b;
+            --shadow: 0 8px 22px rgba(20, 52, 74, 0.08);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", "Noto Sans TC", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(180deg, #f7fbfc 0%, var(--bg) 100%);
+            color: var(--text);
+            line-height: 1.45;
+        }
+
+        .page {
+            width: min(1440px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 18px 0 24px;
+        }
+
+        .page-title {
+            margin: 0 0 18px;
+            text-align: center;
+            font-size: 1.9rem;
+            line-height: 1.2;
+            letter-spacing: 0.04em;
+            color: #1f3549;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-areas:
+                "info appearance design"
+                "action action action"
+                "material rebar strength";
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .card {
+            min-width: 0;
+            background: var(--card);
+            border: 1px solid rgba(226, 235, 240, 0.9);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card h2 {
+            margin: 0 0 14px;
+            padding-bottom: 9px;
+            border-bottom: 1px solid var(--border);
+            font-size: 1.02rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .info-card { grid-area: info; }
+        .appearance-card { grid-area: appearance; }
+        .design-card { grid-area: design; }
+        .action-card { grid-area: action; }
+        .material-card { grid-area: material; }
+        .rebar-card { grid-area: rebar; }
+        .strength-card { grid-area: strength; }
+
+        .info-card {
+            justify-content: center;
+            background: var(--accent);
+            border-left: 5px solid #2e9be6;
+        }
+
+        .info-card p {
+            margin: 0;
+            font-size: 0.92rem;
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+            gap: 11px 12px;
+            align-content: start;
+            flex: 1;
+        }
+
+        .form-group {
+            min-width: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: #3f5162;
+            font-size: 0.78rem;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        input {
+            width: 100%;
+            margin-top: auto;
+            height: 36px;
+            padding: 8px 10px;
+            border: 1px solid #cbd5dc;
+            border-radius: 7px;
+            background: #fff;
+            color: var(--text);
+            font-size: 0.92rem;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+        }
+
+        input:focus {
+            border-color: #2e9be6;
+            box-shadow: 0 0 0 3px rgba(46, 155, 230, 0.14);
+            outline: none;
+        }
+
+        .result-box {
+            margin-top: auto;
+            min-height: 36px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            border: 1px dashed #b9c8d3;
+            border-radius: 7px;
+            background: #f8fbfc;
+            color: #1f3549;
+            font-weight: 800;
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+
+        .action-card {
+            padding: 14px 16px;
+        }
+
+        .action-row {
+            display: grid;
+            grid-template-columns: 160px 220px 1fr;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .action-title h2 {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+
+        .action-title p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+
+        button {
+            width: 100%;
+            height: 42px;
+            border: 0;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary), #2f8fd0);
+            color: #fff;
+            box-shadow: 0 8px 16px rgba(37, 121, 184, 0.24);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            transition: transform 0.12s, box-shadow 0.2s, background 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--primary-dark), #2579b8);
+            box-shadow: 0 10px 18px rgba(37, 121, 184, 0.28);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(1px) scale(0.995);
+        }
+
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.85;
+        }
+
+        @media (min-width: 1180px) {
+            .design-card .field-grid,
+            .material-card .field-grid,
+            .rebar-card .field-grid,
+            .strength-card .field-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .appearance-card .field-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 1040px) {
+            .page {
+                width: min(100% - 28px, 980px);
+                padding-top: 14px;
+            }
+
+            .dashboard {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-areas:
+                    "info action"
+                    "appearance design"
+                    "material rebar"
+                    "strength strength";
+            }
+
+            .action-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                align-items: stretch;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .page {
+                width: min(100% - 20px, 620px);
+                padding: 12px 0 18px;
+            }
+
+            .page-title {
+                margin-bottom: 14px;
+                font-size: 1.45rem;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "info"
+                    "appearance"
+                    "design"
+                    "action"
+                    "material"
+                    "rebar"
+                    "strength";
+                gap: 12px;
+            }
+
+            .card {
+                padding: 14px;
+            }
+
+            .field-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 430px) {
+            .field-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <h1 class="page-title">最佳化自動配筋系統</h1>
+
+        <section class="dashboard">
+            <div class="card info-card">
+                <p>
+                    <strong>說明：</strong>請輸入完整「桿件外觀參數」以及「結構設計參數」。<br>
+                    * <strong>distance</strong>：為主筋中心距離邊界的距離。<br>
+                    * <strong>sw</strong>：為主筋中心到中心的間距。<br>
+                    * <strong>iteration_loop</strong>：基因演算法的迭代次數，數字越大，結果越好，不過計算越久。
+                </p>
+            </div>
+
+            <div class="card appearance-card">
+                <h2>桿件外觀參數</h2>
+                <div class="field-grid">
+                    <div class="form-group"><label>ln (inch)</label><input type="number" id="in_ln" value="208.661" step="any"></div>
+                    <div class="form-group"><label>type</label><input type="text" id="in_type" value="middle"></div>
+                    <div class="form-group"><label>bw (inch)</label><input type="number" id="in_bw" value="20.669" step="any"></div>
+                    <div class="form-group"><label>H (inch)</label><input type="number" id="in_H" value="23.622" step="any"></div>
+                    <div class="form-group"><label>hf (inch)</label><input type="number" id="in_hf" value="7.0866" step="any"></div>
+                </div>
+            </div>
+
+            <div class="card design-card">
+                <h2>結構設計參數</h2>
+                <div class="field-grid">
+                    <div class="form-group"><label>Mu_plus (K-ft)</label><input type="number" id="in_Mu_plus" value="217.972" step="any"></div>
+                    <div class="form-group"><label>Mu_minus (K-ft)</label><input type="number" id="in_Mu_minus" value="272.056" step="any"></div>
+                    <div class="form-group"><label>Vu (Kips)</label><input type="number" id="in_Vu" value="60.678" step="any"></div>
+                    <div class="form-group"><label>Tu (K-ft)</label><input type="number" id="in_Tu" value="32.776" step="any"></div>
+                    <div class="form-group"><label>beff (inch)</label><input type="number" id="in_beff" value="72.834" step="any"></div>
+                    <div class="form-group"><label>cc (inch)</label><input type="number" id="in_cc" value="1.9685" step="any"></div>
+                    <div class="form-group"><label>fc (ksi)</label><input type="number" id="in_fc" value="5" step="any"></div>
+                    <div class="form-group"><label>fy (ksi)</label><input type="number" id="in_fy" value="60" step="any"></div>
+                </div>
+            </div>
+
+            <div class="card action-card">
+                <div class="action-row">
+                    <div class="action-title">
+                        <h2>執行運算</h2>
+                        <p>確認參數後執行 GA 最佳化</p>
+                    </div>
+                    <div class="form-group">
+                        <label>iteration_loop</label>
+                        <input type="number" id="in_iteration_loop" value="20" step="1" min="1">
+                    </div>
+                    <button id="submit-btn" onclick="runAlgorithm()">開始執行最佳化配筋運算</button>
+                </div>
+            </div>
+
+            <div class="card material-card">
+                <h2>材料品項</h2>
+                <div class="field-grid">
+                    <div class="form-group"><label>main_A (No)</label><div class="result-box" id="out_main_A">-</div></div>
+                    <div class="form-group"><label>main_N (amount)</label><div class="result-box" id="out_main_N">-</div></div>
+                    <div class="form-group"><label>stirrups_A (No)</label><div class="result-box" id="out_stirrups_A">-</div></div>
+                    <div class="form-group"><label>stirrups_N (amount)</label><div class="result-box" id="out_stirrups_N">-</div></div>
+                    <div class="form-group"><label>reinforcement_usage (inch²)</label><div class="result-box" id="out_reinforcement_usage">-</div></div>
+                </div>
+            </div>
+
+            <div class="card rebar-card">
+                <h2>鋼筋配置</h2>
+                <div class="field-grid">
+                    <div class="form-group"><label>d1 (inch)</label><div class="result-box" id="out_d1">-</div></div>
+                    <div class="form-group"><label>d2 (inch)</label><div class="result-box" id="out_d2">-</div></div>
+                    <div class="form-group"><label>s (inch)</label><div class="result-box" id="out_s">-</div></div>
+                    <div class="form-group"><label>sw (inch)</label><div class="result-box" id="out_sw">-</div></div>
+                    <div class="form-group"><label>distance (inch)</label><div class="result-box" id="out_distance">-</div></div>
+                </div>
+            </div>
+
+            <div class="card strength-card">
+                <h2>設計強度</h2>
+                <div class="field-grid">
+                    <div class="form-group"><label>Mn_plus (K-ft)</label><div class="result-box" id="out_Mn_plus">-</div></div>
+                    <div class="form-group"><label>Mn_minus (K-ft)</label><div class="result-box" id="out_Mn_minus">-</div></div>
+                    <div class="form-group"><label>Vn (Kips)</label><div class="result-box" id="out_Vn">-</div></div>
+                    <div class="form-group"><label>Tn (K-ft)</label><div class="result-box" id="out_Tn">-</div></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        async function runAlgorithm() {
+            const btn = document.getElementById('submit-btn');
+            const originalText = btn.innerText;
+
+            btn.disabled = true;
+            btn.innerText = "⏳ 基因演算法進行設計中...";
+
+            const params = new URLSearchParams({
+                ln: document.getElementById('in_ln').value,
+                type: document.getElementById('in_type').value,
+                bw: document.getElementById('in_bw').value,
+                H: document.getElementById('in_H').value,
+                hf: document.getElementById('in_hf').value,
+                Mu_plus: document.getElementById('in_Mu_plus').value,
+                Mu_minus: document.getElementById('in_Mu_minus').value,
+                Vu: document.getElementById('in_Vu').value,
+                Tu: document.getElementById('in_Tu').value,
+                beff: document.getElementById('in_beff').value,
+                cc: document.getElementById('in_cc').value,
+                fc: document.getElementById('in_fc').value,
+                fy: document.getElementById('in_fy').value,
+                iteration_loop: document.getElementById('in_iteration_loop').value
+            });
+
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/echo?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`伺服器回應錯誤：狀態碼 ${response.status}`);
+                }
+
+                const data = await response.json();
+                const res = data.result;
+
+                document.getElementById('out_main_A').innerText = res.main_reinforcement_area;
+                document.getElementById('out_main_N').innerText = res.main_reinforcement_count;
+                document.getElementById('out_stirrups_A').innerText = res.stirrups_area;
+                document.getElementById('out_stirrups_N').innerText = res.stirrups_count;
+
+                document.getElementById('out_reinforcement_usage').innerText =
+                    (typeof res.reinforcement_usage === 'number') ? res.reinforcement_usage.toFixed(3) : res.reinforcement_usage;
+
+                document.getElementById('out_d1').innerText = (typeof res.d1 === 'number') ? res.d1.toFixed(3) : res.d1;
+                document.getElementById('out_d2').innerText = (typeof res.d2 === 'number') ? res.d2.toFixed(3) : res.d2;
+                document.getElementById('out_s').innerText = (typeof res.stirrups_spacing === 'number') ? res.stirrups_spacing.toFixed(3) : res.stirrups_spacing;
+                document.getElementById('out_sw').innerText = (typeof res.sw === 'number') ? res.sw.toFixed(3) : res.sw;
+                document.getElementById('out_distance').innerText = (typeof res.distance === 'number') ? res.distance.toFixed(3) : res.distance;
+
+                document.getElementById('out_Mn_plus').innerText = (typeof res.nominal_moment_plus === 'number') ? res.nominal_moment_plus.toFixed(3) : res.nominal_moment_plus;
+                document.getElementById('out_Mn_minus').innerText = (typeof res.nominal_moment_minus === 'number') ? res.nominal_moment_minus.toFixed(3) : res.nominal_moment_minus;
+                document.getElementById('out_Vn').innerText = (typeof res.nominal_shear === 'number') ? res.nominal_shear.toFixed(3) : res.nominal_shear;
+                document.getElementById('out_Tn').innerText = (typeof res.nominal_torsion === 'number') ? res.nominal_torsion.toFixed(3) : res.nominal_torsion;
+
+            } catch (error) {
+                console.error(error);
+                alert("連線失敗！\n1. 請確認你的 app.py 是否已經啟動 (Running on http://127.0.0.1:5000)。\n2. 檢查終端機是否有報錯訊息。");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+    </script>
+</body>
+</html>
