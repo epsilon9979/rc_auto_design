@@ -1,16 +1,14 @@
-N
 {
-  "version": 2,
   "builds": [
     {
       "src": "rc_auto_design_system/app.py",
       "use": "@vercel/python"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "rc_auto_design_system/app.py"
+      "source": "/(.*)",
+      "destination": "/rc_auto_design_system/app.py"
     }
   ]
 }
