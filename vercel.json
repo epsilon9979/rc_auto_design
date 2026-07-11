@@ -1,15 +1,16 @@
+N
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "app.py",
-            "use": "@vercel/python"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "app.py"
-        }
-    ]
+  "version": 2,
+  "builds": [
+    {
+      "src": "rc_auto_design_system/app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "rc_auto_design_system/app.py"
+    }
+  ]
 }
