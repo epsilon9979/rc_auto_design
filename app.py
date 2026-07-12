@@ -2,12 +2,11 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from operation import main
 
-app = Flask(__name__)
-CORS(app)
+app = Flask(__name__, template_folder=".")
 
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("rc_auto.html")
 
 @app.route('/echo', methods=['GET'])
 def echo():
