@@ -3,6 +3,7 @@ from flask_cors import CORS
 from operation import main
 
 app = Flask(__name__, template_folder=".")
+CORS(app)
 
 @app.route("/")
 def index():
@@ -62,4 +63,4 @@ def echo():
     })
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True) # 開啟 debug=True 方便開發時除錯
+    app.run(port=5000, debug=True) # 開啟 debug=True 方便開發時除錯 
